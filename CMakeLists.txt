@@ -6,7 +6,6 @@ include(FetchContent)
 
 include(cmake/CPM.cmake)
 include(cmake/IMGUI.cmake)
-# include(cmake/GLEW.cmake)
 include(cmake/GLFW.cmake)
 include(cmake/GLM.cmake)
 
@@ -27,14 +26,9 @@ add_definitions(-DGLFW_INCLUDE_NONE)
 # GLFW
 find_package(GLFW REQUIRED)
 cmake_print_variables(GLFW_FOUND)
-# target_include_directories(glfw PRIVATE ${GLFW_INCLUDE_DIRS}/GLFW)
 target_link_libraries(${PROJECT_NAME} glfw)
 
 # IMGUI (Manual linking)
-# find_package(IMGUI REQUIRED)
-# cmake_print_variables(IMGUI_FOUND)
-# target_link_libraries(${PROJECT_NAME} IMGUI)
-
 add_library(imgui ${IMGUI_SOURCE_DIR}/imgui.cpp
                   ${IMGUI_SOURCE_DIR}/imgui_demo.cpp
                   ${IMGUI_SOURCE_DIR}/imgui_draw.cpp
@@ -55,10 +49,6 @@ target_link_libraries(imgui glfw)
 target_link_libraries(${PROJECT_NAME} imgui)
 target_include_directories(${PROJECT_NAME} PRIVATE ${IMGUI_SOURCE_DIR} ${IMGUI_SOURCE_DIR}/backends)
 
-# GLEW
-# find_package(GLEW REQUIRED)
-# target_link_libraries(${PROJECT_NAME} GLEW)
-
 # OpenGL
 find_package(OpenGL REQUIRED)
 cmake_print_variables(OPENGL_FOUND)
@@ -68,8 +58,22 @@ target_link_libraries(${PROJECT_NAME} OpenGL::GL ${OPEN_GL_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} glm::glm)
 
 # shaders
-# add_custom_command(TARGET ${PROJECT_NAME}
-#     POST_BUILD
-#     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/shaders/*.vs ${PROJECT_BINARY_DIR}
-#     COMMAND ${CMAKE_COMMAND} -E copy ${PROJECT_SOURCE_DIR}/shaders/*.fs ${PROJECT_BINARY_DIR}
-# )
+add_custom_target(copy_shaders ALL 
+    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/shaders ${PROJECT_BINARY_DIR}/shaders
+)
+
+if (UNIX)
+    if (APPLE)
+        target_link_libraries(${CMAKE_PROJECT_NAME}
+                "-framework Cocoa"
+                "-framework IOKit"
+                "-framework CoreVideo"
+        )
+    else()
+        target_link_libraries(${CMAKE_PROJECT_NAME}
+                ${CMAKE_THREAD_LIBS_INIT}
+                ${X11_LIBRARIES}
+                ${CMAKE_DL_LIBS}
+        )
+    endif()
+endif()
