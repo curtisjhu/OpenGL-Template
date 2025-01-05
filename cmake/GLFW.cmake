@@ -1,0 +1,5 @@
+CPMAddPackage(
+	NAME GLFW
+	GITHUB_REPOSITORY glfw/glfw
+	GIT_TAG 3.4
+)
