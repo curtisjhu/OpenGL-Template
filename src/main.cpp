@@ -1,7 +1,8 @@
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
-#include <imgui_impl_metal.h>
+#include <imgui_impl_opengl3.h>
 
+#define GL_SILENCE_DEPRECATION
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -37,6 +38,7 @@ int main(void)
         return -1;
     }
 
+    // Shader
     Shader myShader("shaders/vert.glsl", "shaders/frag.glsl");
     float vertices[] = {
         // positions (tri)   // colors (red, green, blue)
@@ -63,10 +65,36 @@ int main(void)
     glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
+    // Initialize ImGUI
+    /* Check OpenGL version */
+    const GLubyte* renderer = glGetString(GL_RENDERER); // get renderer string
+    const GLubyte* version = glGetString(GL_VERSION); // version as a string
+    std::cout << "Renderer: " << renderer << std::endl;
+    std::cout << "OpenGL version supported: " << version << std::endl;
+
+	IMGUI_CHECKVERSION();
+	ImGui::CreateContext();
+	ImGuiIO& io = ImGui::GetIO(); (void)io;
+	ImGui::StyleColorsDark();
+	ImGui_ImplGlfw_InitForOpenGL(window, true);
+	ImGui_ImplOpenGL3_Init("#version 330");
+    bool show_demo_window = true;
+
     while (!glfwWindowShouldClose(window))
     {
 
-		glClear(GL_COLOR_BUFFER_BIT);
+        glfwPollEvents();
+
+        // Tell OpenGL a new frame is about to begin
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+        // ImGUI window creation
+        ImGui::ShowDemoWindow(&show_demo_window);
+        // ImGui::Begin("Another Window");   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
+        // ImGui::Text("Hello from another window!");
+        // ImGui::End();
 
         // Uniforms
         myShader.setFloat("u_time", static_cast<float>(glfwGetTime()));
@@ -78,19 +106,32 @@ int main(void)
         myShader.setVec2("u_resolution", w_f, h_f);
         myShader.use();
 
-        // Draw Rectangle
+        // Render
+        ImGui::Render();
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+
         glBindVertexArray(VAO);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+        glfwMakeContextCurrent(window);
         glfwSwapBuffers(window);
 
-        glfwPollEvents();
     }
 
     glDeleteVertexArrays(1, &VAO);
     glDeleteBuffers(1, &VBO);
 
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
 
+    glfwDestroyWindow(window);
     glfwTerminate();
     return 0;
 }
