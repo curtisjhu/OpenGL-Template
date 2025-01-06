@@ -91,10 +91,8 @@ int main(void)
 		ImGui::NewFrame();
 
         // ImGUI window creation
+        ImGui::SetWindowPos(ImVec2({ 0, 0 }));
         ImGui::ShowDemoWindow(&show_demo_window);
-        // ImGui::Begin("Another Window");   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-        // ImGui::Text("Hello from another window!");
-        // ImGui::End();
 
         // Uniforms
         myShader.setFloat("u_time", static_cast<float>(glfwGetTime()));

@@ -22,19 +22,25 @@ target_include_directories(${PROJECT_NAME} PRIVATE
 ########################################
 
 # shaders
-add_custom_target(copy_shaders ALL 
-    COMMAND ${CMAKE_COMMAND} -E copy_directory ${PROJECT_SOURCE_DIR}/shaders ${PROJECT_BINARY_DIR}/shaders
+add_custom_command(
+         TARGET ${PROJECT_NAME}
+         POST_BUILD
+         COMMAND ${CMAKE_COMMAND} -E copy_directory              
+             ${CMAKE_HOME_DIRECTORY}/shaders 
+             ${CMAKE_CURRENT_BINARY_DIR}/shaders
+         COMMENT "Copying shaders" VERBATIM
 )
+
 
 if (UNIX)
     if (APPLE)
-        target_link_libraries(${CMAKE_PROJECT_NAME}
+        target_link_libraries(${PROJECT_NAME}
                 "-framework Cocoa"
                 "-framework IOKit"
                 "-framework CoreVideo"
         )
     else()
-        target_link_libraries(${CMAKE_PROJECT_NAME}
+        target_link_libraries(${PROJECT_NAME}
                 ${CMAKE_THREAD_LIBS_INIT}
                 ${X11_LIBRARIES}
                 ${CMAKE_DL_LIBS}

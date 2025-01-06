@@ -1,6 +1,8 @@
-# Template for GLFW/IMGUI/OpenGL
+# Template for GLFW/IMGUI/OpenGL3
 
 ![Example](./example.png)
+> For ImGui, using glfw + opengl3 as platform and backend. 
+This may not work on all platforms such as Apple M1 so you'll need to change it, but its only a few lines of code.
 
 ```
 mkdir build
@@ -11,7 +13,4 @@ Unix:
 ```
 make
 ```
-Windows. Depending on your compiler. I'm using MinGW compiling 32-bit:
-```
-mingw32-make
-```
+Windows. Compile CMakeLists.txt with Visual Studio 2022 Cmake and run the .exe file.
